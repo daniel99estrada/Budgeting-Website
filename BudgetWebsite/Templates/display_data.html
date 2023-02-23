@@ -1,0 +1,52 @@
+<h1>Display Data</h1>
+<form method="POST">
+  <label for="start-date">Start Date:</label>
+  <input type="date" id="start-date" name="start-date">
+  
+  <label for="end-date">End Date:</label>
+  <input type="date" id="end-date" name="end-date">
+  
+  <label for="category">Category:</label>
+  <select id="category" name="category">
+    {% for category in categories %}
+      <option value="{{ category }}">{{ category }}</option>
+    {% endfor %}
+  </select>
+  <input type="submit" value="Add Expense">
+</form>
+<img src="{{ chart_file }}" alt="Expenses by Category">
+</body>
+
+<h1>All Expenses</h1>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Cost</th>
+    <th>Date</th>
+    <th>Category</th>
+  </tr>
+  {% for expense in expenses %}
+    <tr>
+      <td>{{ expense.name }}</td>
+      <td>{{ expense.cost }}</td>
+      <td>{{ expense.date.strftime('%m-%d-%Y') }}</td>
+      <td>{{ expense.category }}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+<h1>All Incomes</h1>
+<table>
+<tr>
+  <th>Source</th>
+  <th>Value</th>
+  <th>Date</th>
+</tr>
+{% for income in incomes %}
+  <tr>
+    <td>{{ income.source }}</td>
+    <td>{{ income.value }}</td>
+    <td>{{ income.date.strftime('%m-%d-%Y') }}</td>
+  </tr>
+{% endfor %}
+</table>

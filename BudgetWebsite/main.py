@@ -1,7 +1,6 @@
 from flask import Flask, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 from datetime import date, datetime
-
 import matplotlib.pyplot as plt
 import os
 
@@ -17,87 +16,65 @@ class Expense(db.Model):
     date = db.Column(db.Date, nullable=False)
     category = db.Column(db.String(50), nullable=False)
 
+class Income(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    source = db.Column(db.String(80), nullable=False)
+    value = db.Column(db.Float, nullable=False)
+    date = db.Column(db.Date, nullable=False)
+
 @app.route('/add_expense', methods=['POST'])
 def add_expense():
+    type = request.form['expense-income']
     name = request.form['name']
     cost = request.form['cost']
     category = request.form['category']
-    new_category = request.form['new_category']
+    # new_category = request.form['new_category']
+    date_str = request.form['date']
     date_str = request.form['date']
 
     if not date_str:
         today = date.today()
         date_str = today.strftime('%Y-%m-%d')
 
-    if new_category:
-        category = new_category
+    # if new_category:
+    #     category = new_category
 
     date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
 
-    expense = Expense(name=name, cost=cost, category=category, date=date_obj)
-    db.session.add(expense)
-    db.session.commit()
-
-    return 'Expense added!'
-
-@app.route('/expenses')
-def list_expenses():
-    expenses = Expense.query.order_by(Expense.date.desc()).all()
-    return render_template('expenses.html', expenses=expenses)
-
-
-from datetime import datetime
-
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    # Get the selected category and date range from the form
-    selected_category = request.form.get('category')
-    start_date_str = request.form.get('start_date')
-    end_date_str = request.form.get('end_date')
-
-    # Parse the start and end dates
-    start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
-    end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
-
-    # Get the expenses that match the selected category and date range
-    if selected_category:
-        expenses = Expense.query.filter_by(category=selected_category)
+    if type == 'income':
+        income = Income(source=name, value=cost, date=date_obj)
+        db.session.add(income)
     else:
-        expenses = Expense.query
+        expense = Expense(name=name, cost=cost, category=category, date=date_obj)
+        db.session.add(expense)
 
-    if start_date:
-        expenses = expenses.filter(Expense.date >= start_date)
+    db.session.commit()
+    
+    categories = list(set(expense.category for expense in Expense.query.all()))
 
-    if end_date:
-        expenses = expenses.filter(Expense.date <= end_date)
+    return render_template('add_expense.html', categories=list(categories))
 
-    expenses = expenses.all()
-
-    # Calculate the total cost of the expenses
+@app.route('/display')
+def display():
+    # get expenses with the selected category
+    selected_category = request.form.get('category')
+    
+    expenses = Expense.query.filter_by(category=selected_category).all()
     total = sum(expense.cost for expense in expenses)
 
-    # Get the list of categories and today's date
-    categories = ['food', 'rent', 'entertainment']
-    today = date.today().strftime('%Y-%m-%d')
+    # Get the list of categories from the database
+    categories = list(set(expense.category for expense in Expense.query.all()))
 
     # Get the sum of expenses for each category
-    data = []
-
+    totalCosts = []
     for category in categories:
-        expenses_by_category = Expense.query.filter_by(category=category)
-
-        if start_date:
-            expenses_by_category = expenses_by_category.filter(Expense.date >= start_date)
-
-        if end_date:
-            expenses_by_category = expenses_by_category.filter(Expense.date <= end_date)
-
-        total_by_category = sum(expense.cost for expense in expenses_by_category)
-        data.append(total_by_category)
+        expenses = Expense.query.filter_by(category=category)
+        total = sum(expense.cost for expense in expenses)
+        totalCosts.append(total)
 
     # Display the data in a bar chart
     fig, ax = plt.subplots()
-    ax.bar(categories, data)
+    ax.bar(categories, totalCosts)
     ax.set_xlabel('Category')
     ax.set_ylabel('Total Cost')
     ax.set_title('Expenses by Category')
@@ -110,18 +87,30 @@ def index():
     if not os.path.exists(chart_file):
         # Generate the chart and save it to the file
         fig, ax = plt.subplots()
-        ax.bar(categories, data)
+        ax.bar(categories, totalCosts)
         ax.set_xlabel('Category')
         ax.set_ylabel('Total Cost')
         ax.set_title('Expenses by Category')
         plt.savefig(chart_file)
 
     expenses = Expense.query.order_by(Expense.date.desc()).all()
-    return render_template('add_expense.html', categories=list(categories), today=today, chart_file=chart_file, expenses=expenses)
+    incomes = Income.query.order_by(Income.date.desc()).all()
+    return render_template('display_data.html',chart_file=chart_file, expenses=expenses, incomes=incomes)
 
 
 
+@app.route('/', methods=['GET', 'POST'])
+def index():
+
+    categories = list(set(expense.category for expense in Expense.query.all()))
+    return render_template('add_expense.html', categories=list(categories))
 
 if __name__ == '__main__':
-    db.create_all()
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)
+
+
+
+
+

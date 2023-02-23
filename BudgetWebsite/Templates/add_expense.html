@@ -4,6 +4,13 @@
   </head>
   <body>
     <h1>Add Expense</h1>
+    <input type="radio" name="expense-income" value="expense" checked>
+    Expense
+  </label>
+  <label>
+    <input type="radio" name="expense-income" value="income">
+    Income
+  </label><br><br>
     <form method="post" action="/add_expense">
       <label>Name:</label>
       <input type="text" name="name"><br><br>
@@ -11,49 +18,26 @@
       <input type="number" name="cost" step="0.01"><br><br>
       <label>Date:</label>
       <input type="date" name="date" value="{{ today }}"><br><br>
-      <label>Category:</label>
-      <select name="category">
-        {% for category in categories %}
-        <option value="{{ category }}">{{ category }}</option>
-        {% endfor %}
-      </select>
-      <input type="text" name="new_category" placeholder="New Category"><br><br>
-      <input type="submit" value="Add Expense">
-    </form>
-
-    <h1>Display Data</h1>
-    <form method="POST">
-      <label for="start-date">Start Date:</label>
-      <input type="date" id="start-date" name="start-date">
-      
-      <label for="end-date">End Date:</label>
-      <input type="date" id="end-date" name="end-date">
-      
-      <label for="category">Category:</label>
-      <select id="category" name="category">
-        {% for category in categories %}
+      <label>
+        <label>Category:</label>
+        <select name="category" onchange="showOtherOption(this)">
+          {% for category in categories %}
           <option value="{{ category }}">{{ category }}</option>
-        {% endfor %}
-      </select>
-      <input type="submit" value="Add Expense">
+          {% endfor %}
+          <option value="other">Other</option>
+        </select>
+        <input type="text" name="other_category" id="other-category" style="display: none;">
+        <script>
+        function showOtherOption(select) {
+          var otherInput = document.getElementById('other-category');
+          if (select.value == 'other') {
+            otherInput.style.display = 'inline-block';
+            otherInput.focus();
+          } else {
+            otherInput.style.display = 'none';
+          }
+        }
+        </script><br><br>
+      <input type="submit" value="Add Expense" id="add-expense-btn">
     </form>
-    <img src="{{ chart_file }}" alt="Expenses by Category">
-  </body>
-  <h1>All Expenses</h1>
-  <table>
-    <tr>
-      <th>Name</th>
-      <th>Cost</th>
-      <th>Date</th>
-      <th>Category</th>
-    </tr>
-    {% for expense in expenses %}
-      <tr>
-        <td>{{ expense.name }}</td>
-        <td>{{ expense.cost }}</td>
-        <td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
-        <td>{{ expense.category }}</td>
-      </tr>
-    {% endfor %}
-  </table>
 </html>
