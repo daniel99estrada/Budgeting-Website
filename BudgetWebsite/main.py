@@ -24,25 +24,26 @@ class Income(db.Model):
 
 @app.route('/add_expense', methods=['POST'])
 def add_expense():
-    type = request.form['expense-income']
+    type = request.form.get('expense-income')
     name = request.form['name']
     cost = request.form['cost']
-    category = request.form['category']
-    # new_category = request.form['new_category']
-    date_str = request.form['date']
+    category = request.form.get('category')
+    other_category = request.form.get('other_category')
     date_str = request.form['date']
 
     if not date_str:
         today = date.today()
         date_str = today.strftime('%Y-%m-%d')
 
-    # if new_category:
-    #     category = new_category
-
     date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
 
+    if category == 'other':
+        category = other_category
+
+    category = "boom"
+
     if type == 'income':
-        income = Income(source=name, value=cost, date=date_obj)
+        income = Income(source=category, value=cost, date=date_obj)
         db.session.add(income)
     else:
         expense = Expense(name=name, cost=cost, category=category, date=date_obj)

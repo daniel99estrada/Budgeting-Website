@@ -1,19 +1,4 @@
 <h1>Display Data</h1>
-<form method="POST">
-  <label for="start-date">Start Date:</label>
-  <input type="date" id="start-date" name="start-date">
-  
-  <label for="end-date">End Date:</label>
-  <input type="date" id="end-date" name="end-date">
-  
-  <label for="category">Category:</label>
-  <select id="category" name="category">
-    {% for category in categories %}
-      <option value="{{ category }}">{{ category }}</option>
-    {% endfor %}
-  </select>
-  <input type="submit" value="Add Expense">
-</form>
 <img src="{{ chart_file }}" alt="Expenses by Category">
 </body>
 

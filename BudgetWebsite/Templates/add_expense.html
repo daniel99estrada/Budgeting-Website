@@ -4,40 +4,61 @@
   </head>
   <body>
     <h1>Add Expense</h1>
-    <input type="radio" name="expense-income" value="expense" checked>
+    <input type="radio" name="expense-income" value="expense" checked onchange="switchLabels('expense')">
     Expense
   </label>
   <label>
-    <input type="radio" name="expense-income" value="income">
+    <input type="radio" name="expense-income" value="income" onchange="switchLabels('income')">
     Income
   </label><br><br>
+        
+  <label>Category:</label>
+  <select name="category" onchange="showOtherOption(this)">
+    {% for category in categories %}
+    <option value="{{ category }}">{{ category }}</option>
+    {% endfor %}
+    <option value="other">Other</option>
+  </select>
+  <input type="text" name="other_category" id="other-category" style="display: none;">
+  <script>
+  function showOtherOption(select) {
+    var otherInput = document.getElementById('other-category');
+    if (select.value == 'other') {
+      otherInput.style.display = 'inline-block';
+      otherInput.focus();
+    } else {
+      otherInput.style.display = 'none';
+    }
+  }
+  
+  function switchLabels(expenseOrIncome) {
+  var nameLabel = document.getElementById('name-label');
+  var costLabel = document.getElementById('cost-label');
+  var nameInput = document.getElementById('name-input');
+  // var nameBr = document.getElementById('name-br');
+
+  if (expenseOrIncome == 'income') {
+    costLabel.innerHTML = 'Amount:';
+    nameLabel.style.display = 'none';
+    nameInput.style.display = 'none';
+    // nameBr.style.display = 'none';
+  } else {
+    costLabel.innerHTML = 'Cost:';
+    nameLabel.style.display = 'inline';
+    nameInput.style.display = 'inline';
+    // nameBr.style.display = 'inline';
+  }
+}
+  </script><br><br>
     <form method="post" action="/add_expense">
-      <label>Name:</label>
-      <input type="text" name="name"><br><br>
-      <label>Cost:</label>
+      <label id="name-label">Name:</label>
+      <input type="text" name="name" id="name-input">
+      <!-- <br id= "name-br"><br> -->
+      <label id="cost-label">Cost:</label>
       <input type="number" name="cost" step="0.01"><br><br>
       <label>Date:</label>
       <input type="date" name="date" value="{{ today }}"><br><br>
       <label>
-        <label>Category:</label>
-        <select name="category" onchange="showOtherOption(this)">
-          {% for category in categories %}
-          <option value="{{ category }}">{{ category }}</option>
-          {% endfor %}
-          <option value="other">Other</option>
-        </select>
-        <input type="text" name="other_category" id="other-category" style="display: none;">
-        <script>
-        function showOtherOption(select) {
-          var otherInput = document.getElementById('other-category');
-          if (select.value == 'other') {
-            otherInput.style.display = 'inline-block';
-            otherInput.focus();
-          } else {
-            otherInput.style.display = 'none';
-          }
-        }
-        </script><br><br>
       <input type="submit" value="Add Expense" id="add-expense-btn">
     </form>
 </html>
