@@ -45,9 +45,11 @@ def add_expense():
     if type == 'income':
         income = Income(source=category, value=cost, date=date_obj)
         db.session.add(income)
+        print(income.value)
     else:
         expense = Expense(name=name, cost=cost, category=category, date=date_obj)
         db.session.add(expense)
+        print(expense.cost)
 
     db.session.commit()
     
