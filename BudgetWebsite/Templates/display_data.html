@@ -1,5 +1,6 @@
 <h1>Display Data</h1>
 <img src="{{ chart_file }}" alt="Expenses by Category">
+<img src="{{ pieChartFile }}" alt="Savings">
 </body>
 
 <h1>All Expenses</h1>
@@ -14,8 +15,8 @@
     <tr>
       <td>{{ expense.name }}</td>
       <td>{{ expense.cost }}</td>
-      <td>{{ expense.date.strftime('%m-%d-%Y') }}</td>
       <td>{{ expense.category }}</td>
+      <td>{{ expense.date.strftime('%m-%d-%Y') }}</td>
     </tr>
   {% endfor %}
 </table>

@@ -22,9 +22,9 @@ class Income(db.Model):
     value = db.Column(db.Float, nullable=False)
     date = db.Column(db.Date, nullable=False)
 
-@app.route('/add_expense', methods=['POST'])
+@app.route('/add_expense', methods=['GET', 'POST'])
 def add_expense():
-    type = request.form.get('expense-income')
+    type = request.form['type']
     name = request.form['name']
     cost = request.form['cost']
     category = request.form.get('category')
@@ -40,16 +40,14 @@ def add_expense():
     if category == 'other':
         category = other_category
 
-    category = "boom"
+    # category = "boom"
 
     if type == 'income':
         income = Income(source=category, value=cost, date=date_obj)
         db.session.add(income)
-        print(income.value)
     else:
         expense = Expense(name=name, cost=cost, category=category, date=date_obj)
         db.session.add(expense)
-        print(expense.cost)
 
     db.session.commit()
     
@@ -59,11 +57,18 @@ def add_expense():
 
 @app.route('/display')
 def display():
-    # get expenses with the selected category
-    selected_category = request.form.get('category')
-    
-    expenses = Expense.query.filter_by(category=selected_category).all()
-    total = sum(expense.cost for expense in expenses)
+    expenses = sum(expense.cost for expense in Expense.query.all()) 
+    income = sum(income.value for income in Income.query.all()) 
+
+    savings = abs(income - expenses)
+    sizes = [savings, expenses]
+    labels = ["Savings", "Expenses"]
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, autopct=lambda p: '{:.0f}%'.format(p * income / 100))
+
+    # Save the pie chart to a PNG file
+    pieChartFile = 'static/pieChart.png'
+    plt.savefig(pieChartFile)
 
     # Get the list of categories from the database
     categories = list(set(expense.category for expense in Expense.query.all()))
@@ -98,7 +103,7 @@ def display():
 
     expenses = Expense.query.order_by(Expense.date.desc()).all()
     incomes = Income.query.order_by(Income.date.desc()).all()
-    return render_template('display_data.html',chart_file=chart_file, expenses=expenses, incomes=incomes)
+    return render_template('display_data.html',chart_file=chart_file, pieChartFile=pieChartFile, expenses=expenses, incomes=incomes)
 
 
 

@@ -4,13 +4,23 @@
   </head>
   <body>
     <h1>Add Expense</h1>
-    <input type="radio" name="expense-income" value="expense" checked onchange="switchLabels('expense')">
+    <form method="post" action="/add_expense">
+    <input type="radio" name="type" value="expense" checked onchange="switchLabels('expense')">
     Expense
   </label>
   <label>
-    <input type="radio" name="expense-income" value="income" onchange="switchLabels('income')">
+    <input type="radio" name="type" value="income" onchange="switchLabels('income')">
     Income
   </label><br><br>
+    <label id="name-label">Name:</label>
+    <input type="text" name="name" id="name-input">
+    <!-- <br id= "name-br"><br> -->
+    <label id="cost-label">Cost:</label>
+    <input type="number" name="cost" step="0.01"><br><br>
+    <label>Date:</label>
+    <input type="date" name="date" value="{{ today }}"><br><br>
+    <label>
+    <input type="submit" value="Add Expense" id="add-expense-btn"><br><br>
         
   <label>Category:</label>
   <select name="category" onchange="showOtherOption(this)">
@@ -19,6 +29,7 @@
     {% endfor %}
     <option value="other">Other</option>
   </select>
+  </form>
   <input type="text" name="other_category" id="other-category" style="display: none;">
   <script>
   function showOtherOption(select) {
@@ -49,16 +60,6 @@
     // nameBr.style.display = 'inline';
   }
 }
-  </script><br><br>
-    <form method="post" action="/add_expense">
-      <label id="name-label">Name:</label>
-      <input type="text" name="name" id="name-input">
-      <!-- <br id= "name-br"><br> -->
-      <label id="cost-label">Cost:</label>
-      <input type="number" name="cost" step="0.01"><br><br>
-      <label>Date:</label>
-      <input type="date" name="date" value="{{ today }}"><br><br>
-      <label>
-      <input type="submit" value="Add Expense" id="add-expense-btn">
-    </form>
+  </script>
+
 </html>
